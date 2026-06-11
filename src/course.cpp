@@ -10,18 +10,18 @@ course::course(std::string courseCode, std::string courseName, std::string dep, 
 }
 
 course::~course() {
-
+std::cout<<"hola";
 }
 
 void course::set_instructor(instructor* inst) {
     assigned_instructor.instructor(inst);
 }
 
-instructor* instructor::get_instructor() {
+instructor* course::get_instructor() {
     return assigned_instructor;
 }
 
-void instructor::set_space(space* spac) {
+void course::set_space(space* spac) {
     assigned_space.space(spac);
 }
 
