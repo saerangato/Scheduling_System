@@ -13,7 +13,7 @@ public:
     space(std::string b_name, int r_num, int capacity);
     virtual ~space();
 
-    string get_building_name() const;
+    std::string get_building_name() const;
     int get_room_number() const;
     int get_max_seating_capacity() const;
 
