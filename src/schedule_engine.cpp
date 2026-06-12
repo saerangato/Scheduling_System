@@ -35,7 +35,7 @@ bool schedule_engine::room_assignment(course* cour, space* spac) {
 
     // 2. Revisar empalmes
     for (int i = 0; i < num_courses; i++) {
-        course* otro = courses_array[i]; 
+        course* otro = &courses_array[i];
         
         bool mismo_salon = (otro->get_assigned_space() == spac);
         bool mismo_dia = (otro->get_course_day() == cour->get_course_day());
@@ -62,7 +62,7 @@ bool schedule_engine::room_assignment(course* cour, space* spac) {
 bool schedule_engine::lecturer_limit_classes() {
     for (int i = 0; i < num_instructors; i++) {
         // Le preguntamos directo al instructor si ya se pasó de su límite
-        if (instructors_array[i]->exceeds_maximum_courses()) {
+        if (instructors_array[i].exceeds_maximum_courses()) {
             cout << "Error: Un profesor de catedra excede el maximo de 3 clases." << endl;
             return false;
         }
@@ -75,7 +75,7 @@ bool schedule_engine::exit_program() {
 
     for (int i = 0; i < num_instructors; i++) {
         // Le preguntamos directo al instructor si NO cumple con su mínimo
-        if (!instructors_array[i]->meets_minimum_courses()) {
+        if (!instructors_array[i].meets_minimum_courses()) {
             cout << "Error al salir: Un profesor de planta tiene menos de 2 clases asignadas." << endl;
             can_exit = false; 
         }
