@@ -27,33 +27,31 @@ schedule_engine::~schedule_engine() {
 // 3. Las funciones 
 bool schedule_engine::room_assignment(course* cour, space* spac) {
     
-    // Revisar capacidad
-    if (cour->get_enrollment() > spac->get_max_capacity()) {
-        cout << "Error: Hay mas alumnos que sillas en este salon." << endl;
+    // 1. Validar capacidad
+    if (cour->get_enrollment() > spac->get_max_seating_capacity()) {
+        cout << "Error: Hay mas alumnos que sillas." << endl;
         return false; 
     }
 
-    // --- PASO 2: EMPALMES ---
+    // 2. Revisar empalmes
     for (int i = 0; i < num_courses; i++) {
         course* otro = courses_array[i]; 
         
-        // Guardamos si chocan en el mismo lugar y día
         bool mismo_salon = (otro->get_assigned_space() == spac);
-        bool mismo_dia = (otro->get_day() == cour->get_day());
+        bool mismo_dia = (otro->get_course_day() == cour->get_course_day());
 
         if (mismo_salon && mismo_dia) {
-            // Revisamos si las horas se cruzan
-            bool choca_inicio = (cour->get_start_time() < otro->get_end_time());
-            bool choca_fin = (cour->get_end_time() > otro->get_start_time());
+            // Usando los nombres de funciones que salen en tu archivo
+            bool choca_inicio = (cour->get_start_hour() < otro->get_end_hour());
+            bool choca_fin = (cour->get_end_hour() > otro->get_start_hour());
 
             if (choca_inicio && choca_fin) {
-                cout << "Error: Este salon ya esta ocupado a esa hora." << endl;
+                cout << "Error: Este salon ya esta ocupado." << endl;
                 return false; 
             }
         }
     }
 
-    // Si todo salió bien
     cour->assign_space(spac);
     cout << "Exito: Salon asignado." << endl;
     return true;
