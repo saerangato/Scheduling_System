@@ -3,9 +3,9 @@
 #include"schedule.hpp"
 
 schedule::schedule() {
-    day_of_week = "unasigned";
-    start_time = 0;
-    end_time = 0;
+    day_of_week = "unassigned";
+    start_time = -1;
+    end_time = -1;
 }
 
 schedule::schedule(std::string day, int start, int end) {
@@ -14,8 +14,9 @@ schedule::schedule(std::string day, int start, int end) {
     end_time = end;
 }
 
- schedule::~schedule() {
- }
+schedule::~schedule() {
+
+}
 
 std::string schedule::get_day_of_week() {
     return day_of_week;
@@ -34,9 +35,13 @@ void schedule::set_day_of_week(std::string day) {
 }
 
 void schedule::set_start_time(int start) {
-    start_time = start;
+    if (end_time == -1||start_time < end_time) {
+        start_time = start;
+    }
 }
 
 void schedule::set_end_time(int end) {
-    end_time = end;
+    if (start_time == -1 || end_time > start_time) {
+        end_time = end;
+    }
 }

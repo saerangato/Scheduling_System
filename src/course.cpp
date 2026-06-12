@@ -1,4 +1,5 @@
 #include<iostream>
+#include<optional>
 #include<string>
 #include"course.hpp"
 
@@ -10,25 +11,44 @@ course::course(std::string courseCode, std::string courseName, std::string dep, 
 }
 
 course::~course() {
-std::cout<<"hola";
+
 }
 
 void course::set_instructor(instructor* inst) {
-    assigned_instructor.instructor(inst);
+    assigned_instructor = inst;
 }
 
 instructor* course::get_instructor() {
-    return assigned_instructor;
+    if (assigned_instructor.has_value()) {
+        return assigned_instructor;
+    }
+    return nullptr;
 }
 
 void course::set_space(space* spac) {
-    assigned_space.space(spac);
+    assigned_space = spac;
 }
 
 space* course::get_space() {
-    return assigned_space;
+    if (assigned_space.has_value()) {
+        return assigned_space;
+    }
+    return nullptr;
 }
 
 void course::print_details() {
-    std::cout<<"Course name: ", course_name, "\nCourse code: ", course_code, "\nDepartment: ", department, "\nNumber of students: ", num_students, "\nInstructor: ", assigned_instructor, "\nSpace: ", assigned_space, "\n";
+    std::cout<<"Course name: "<< course_name
+    << "\nCourse code: "<< course_code<<
+    "\nDepartment: "<< department
+    << "\nNumber of students: "<< num_students<< 
+    "\nInstructor: "; 
+    if (assigned_instructor.has_value())
+        std::cout << "\nInstructor assigned";
+    else
+        std::cout << "\nNo instructor assigned";
+    std::cout<<"\nSpace: "; 
+    if (assigned_instructor.has_value())
+        std::cout << "\nInstructor assigned";
+    else
+        std::cout << "\nNo instructor assigned";<< "\n";
 }
