@@ -1,23 +1,24 @@
 #include "../include/instructor.hpp"
 
-// constructor por defecto
+// default constructor
 instructor::instructor() {
     name = "";
     payroll_numbers = "";
     department = "";
 }
 
-// constructor con parámetros
+// constructor with parameters
 instructor::instructor(std::string n, std::string pnum, std::string dep) {
     name = n;
     payroll_numbers = pnum;
     department = dep;
 }
 
-// destructor virtual (vacío, pero necesario para el polimorfismo)
+
+// virtual destructor (empty, but necessary for polymorphism)
 instructor::~instructor() {}
 
-// getters y setters 
+// getters and setters 
 
 void instructor::set_name(std::string n) {
     name = n;
@@ -43,20 +44,21 @@ std::string instructor::get_department() {
     return department;
 }
 
-// sobrecarga de operadores 
+
+// operator overloading
 
 bool instructor::operator==(const instructor& other) {
-    // dos instructores son iguales si tienen el mismo numero de nomina
+// Two instructors are equal if they have the same payroll number
     return this->payroll_numbers == other.payroll_numbers;
 }
 
 bool instructor::operator<(const instructor& other) {
-    // logica basica para que el motor de horarios la expanda
-    // un profe ocasional es "menor que" un profes de tiempo completo
-    return false; // placeholder simple
+    // Basic logic for the scheduling engine to expand it
+    // An occasional teacher is "less than" a full-time teacher
+    return false; //simple placeholder 
 }
 
 bool instructor::operator>(const instructor& other) {
-    // igual que el operador < pero a la inversa
-    return false; // placeholder simple
+  // Same as the < operator but in reverse
+    return false; // simple placeholder 
 }
