@@ -16,20 +16,23 @@ public:
     std::optional<instructor*> assigned_instructor;
     std::optional<space*> assigned_space;
 
-    course::course(std::string courseCode, std::string courseName, std::string dep, int n_students, std::string day, int start, int end);
+    course(std::string courseCode, std::string courseName, std::string dep, int n_students, std::string day, int start, int end);
+    
+    ~course();
 
-    // Getters necesarios para que tu schedule_engine compile
-    int get_enrollment() { return num_students; }
-    std::string get_course_day() { return course_day; }
-    int get_start_hour() { return start_hour; }
-    int get_end_hour() { return end_hour; }
-    space* get_assigned_space() { return assigned_space.value_or(nullptr); }
-    void assign_space(space* s) { assigned_space = s; }
     void course::set_instructor(instructor* inst);
     instructor* course::get_instructor();
     void course::set_space(space* spac);
     space* course::get_space();
     void course::print_details();
+
+    // Getters & setters
+    int get_enrollment();
+    std::string get_course_day();
+    int get_start_hour();
+    int get_end_hour();
+    space* get_assigned_space();
+    void assign_space(space* s);
 };
 
 #endif
