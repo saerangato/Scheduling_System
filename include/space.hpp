@@ -3,6 +3,7 @@
 
 #include <string>
 
+// It becomes an abstract class
 class space {
 protected:
     std::string building_name;
@@ -17,7 +18,9 @@ public:
     int get_room_number() const;
     int get_max_seating_capacity() const;
 
-    virtual void print_details() const;
+    /*It's declared as a pure virtual function since there isn't 
+    any general "spaces" just classrooms and laboratories.*/
+    virtual void print_details() const = 0;
 
 };
 
