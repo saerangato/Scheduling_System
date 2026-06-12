@@ -24,7 +24,7 @@ public:
     std::string get_course_day() { return course_day; }
     int get_start_hour() { return start_hour; }
     int get_end_hour() { return end_hour; }
-    space* get_assigned_space() { return assigned_space; }
+    space* get_assigned_space() { return assigned_space.value_or(nullptr); }
     void assign_space(space* s) { assigned_space = s; }
     void course::set_instructor(instructor* inst);
     instructor* course::get_instructor();
