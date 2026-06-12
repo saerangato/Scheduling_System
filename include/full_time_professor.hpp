@@ -10,7 +10,7 @@ private:
 
 public:
     full_time_professor(std::string n, std::string pnum, std::string dep);
-    ~full_time_professor();
+    virtual ~full_time_professor();
 
     int get_assigned_courses_count();
 };

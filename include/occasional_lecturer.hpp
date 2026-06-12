@@ -10,7 +10,7 @@ private:
 
 public:
     occasional_lecturer(std::string n, std::string pnum, std::string dep);
-    ~occasional_lecturer();
+   virtual ~occasional_lecturer();
 
     int get_assigned_courses_count();
 };
