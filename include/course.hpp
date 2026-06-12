@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include<optional>
 #include "space.hpp"
 #include "instructor.hpp"
 
@@ -13,10 +14,10 @@ public:
     std::string course_day;
     int start_hour;
     int end_hour;
-    instructor* assigned_instructor;
-    space* assigned_space;
+    std::optional<instructor*> assigned_instructor;
+    std::optional<space*> assigned_space;
 
-    course(std::string name, int students, std::string day, int start, int end);
+    course::course(std::string courseCode, std::string courseName, std::string dep, int n_students, std::string day, int start, int end);
 
     // Getters necesarios para que tu schedule_engine compile
     int get_enrollment() { return num_students; }
