@@ -2,7 +2,6 @@
 #define COURSE_HPP
 
 #include <string>
-#include <vector>
 #include<optional>
 #include "space.hpp"
 #include "instructor.hpp"
