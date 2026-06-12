@@ -8,11 +8,12 @@ protected:
     std::string name;
     std::string payroll_numbers;
     std::string department;
+    int minimum_clases, type, maximum_clases;
 
 public:
     // constructors and destructors
     instructor();
-    instructor(std::string n, std::string pnum, std::string dep);
+    instructor(std::string n, std::string pnum, std::string dep, int _type);
     virtual ~instructor();
 
     // getters and setters
@@ -29,6 +30,9 @@ public:
     virtual bool operator==(const instructor& other);
     virtual bool operator<(const instructor& other);
     virtual bool operator>(const instructor& other);
+
+    bool virtual meets_minimum_courses();
+    bool virtual exceeds_maximum_courses();
 };
 
 #endif

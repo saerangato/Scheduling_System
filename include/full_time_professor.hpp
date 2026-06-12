@@ -13,6 +13,8 @@ public:
     virtual ~full_time_professor();
 
     int get_assigned_courses_count();
+    bool virtual meets_minimum_courses();
+    bool virtual exceeds_maximum_courses();
 };
 
 #endif

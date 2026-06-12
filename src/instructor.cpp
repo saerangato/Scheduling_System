@@ -5,13 +5,15 @@ instructor::instructor() {
     name = "";
     payroll_numbers = "";
     department = "";
+    type = 1;
 }
 
 // constructor with parameters
-instructor::instructor(std::string n, std::string pnum, std::string dep) {
+instructor::instructor(std::string n, std::string pnum, std::string dep, int _type) {
     name = n;
     payroll_numbers = pnum;
     department = dep;
+    type = _type;
 }
 
 

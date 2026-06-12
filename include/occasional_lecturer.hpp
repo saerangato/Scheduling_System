@@ -13,6 +13,8 @@ public:
    virtual ~occasional_lecturer();
 
     int get_assigned_courses_count();
+    bool virtual meets_minimum_courses();
+    bool virtual exceeds_maximum_courses();
 };
 
 #endif
