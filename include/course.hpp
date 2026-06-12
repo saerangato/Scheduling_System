@@ -8,7 +8,7 @@
 
 class course {
 public: 
-    std::string course_name;
+    std::string course_name, course_code, department;
     int num_students;
     std::string course_day;
     int start_hour;
@@ -25,6 +25,11 @@ public:
     int get_end_hour() { return end_hour; }
     space* get_assigned_space() { return assigned_space; }
     void assign_space(space* s) { assigned_space = s; }
+    void course::set_instructor(instructor* inst);
+    instructor* course::get_instructor();
+    void course::set_space(space* spac);
+    space* course::get_space();
+    void course::print_details();
 };
 
 #endif
