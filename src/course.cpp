@@ -29,6 +29,6 @@ space* course::get_space() {
     return assigned_space;
 }
 
-void virtual course::print_details() {
+void course::print_details() {
     std::cout<<"Course name: ", course_name, "\nCourse code: ", course_code, "\nDepartment: ", department, "\nNumber of students: ", num_students, "\nInstructor: ", assigned_instructor, "\nSpace: ", assigned_space, "\n";
 }
