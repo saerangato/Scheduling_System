@@ -20,7 +20,7 @@ void course::set_instructor(instructor* inst) {
 
 instructor* course::get_instructor() {
     if (assigned_instructor.has_value()) {
-        return assigned_instructor;
+        return assigned_instructor.value();
     }
     return nullptr;
 }
@@ -31,7 +31,7 @@ void course::set_space(space* spac) {
 
 space* course::get_space() {
     if (assigned_space.has_value()) {
-        return assigned_space;
+        return assigned_space.value();
     }
     return nullptr;
 }
