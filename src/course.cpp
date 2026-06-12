@@ -32,9 +32,30 @@ space* course::get_space() {
     return assigned_space.value_or(nullptr);
 }
 
-// Estas son las funciones que el compilador te estaba pidiendo
-// para que el motor de horarios funcione correctamente:
-
 void course::print_details() {
     std::cout << "Course: " << course_name << " (" << course_code << ")" << std::endl;
+}
+
+int course::get_enrollment() { 
+    return num_students; 
+}
+
+std::string course::get_course_day() { 
+    return course_day; 
+}
+    
+int course::get_start_hour() { 
+    return start_hour; 
+}
+    
+int course::get_end_hour() { 
+    return end_hour; 
+}
+
+space* course::get_assigned_space() { 
+    return assigned_space.value_or(nullptr); 
+}
+    
+void course::assign_space(space* s) { 
+    assigned_space = s; 
 }
