@@ -20,4 +20,10 @@ class course {
         void set_space(space* spac);
         space* get_space();
         virtual void print_details();
+        int get_enrollment() { return num_students; }
+        std::string get_course_day() { return "Monday"; } 
+        int get_start_hour() { return 8; }             
+        int get_end_hour() { return 10; }                 
+        space* get_assigned_space() { return assigned_space.value_or(nullptr); }
+        void assign_space(space* s) { assigned_space = s; }
 };
