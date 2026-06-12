@@ -48,7 +48,7 @@ void course::print_details() {
         std::cout << "\nNo instructor assigned";
     std::cout<<"\nSpace: "; 
     if (assigned_instructor.has_value())
-        std::cout << "\nInstructor assigned";
+        std::cout << "\nInstructor assigned"<<"\n";
     else
-        std::cout << "\nNo instructor assigned";<< "\n";
+        std::cout << "\nNo instructor assigned"<< "\n";
 }
