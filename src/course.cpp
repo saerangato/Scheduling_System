@@ -39,11 +39,15 @@ int course::get_enrollment() {
 }
 
 std::string course::get_course_day() {
-    return course_schedule.get_day_of_week(); // Accede a través del objeto [cite: 8]
+    return course_schedule.get_day_of_week(); 
 }
 
 int course::get_start_hour() {
-    return course_schedule.get_start_time(); // Accede a través del objeto [cite: 9]
+    return course_schedule.get_start_time(); 
+}
+
+int course::get_end_hour() {
+    return course_schedule.get_end_time(); 
 }
 
 space* course::get_assigned_space() { 

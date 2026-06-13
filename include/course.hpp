@@ -30,6 +30,7 @@ public:
     std::string get_course_day();
     int get_start_hour();
     int get_end_hour();
+    schedule get_schedule();
     space* get_assigned_space();
     void assign_space(space* s);
 };
