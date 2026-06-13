@@ -8,7 +8,7 @@ occasional_lecturer::occasional_lecturer(std::string n, std::string pnum, std::s
     type = 1;
     // They start with 0 assigned courses
     assigned_courses_count = 0;
-    maximum_clases = 3;
+    maximum_classes = 3;
 }
     
 
@@ -21,13 +21,13 @@ int occasional_lecturer::get_assigned_courses_count() {
 }
 
 bool occasional_lecturer::meets_minimum_courses() {
-    if (type == 1 || assigned_courses_count > minimum_clases )
+    if (type == 1 || assigned_courses_count > minimum_classes )
         return true;
     else return false;
 }
 
 bool occasional_lecturer::exceeds_maximum_courses() {
-    if (type == -1 || assigned_courses_count < maximum_clases)
+    if (type == -1 || assigned_courses_count < maximum_classes)
         return true;
     else return false;
 }
