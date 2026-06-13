@@ -34,6 +34,8 @@ public:
     // pure virtual functions
     virtual bool meets_minimum_courses() = 0;
     virtual bool exceeds_maximum_courses() = 0;
+    virtual void increment_courses() = 0;  
+    virtual void decrement_courses() = 0;  
 };
 
 #endif

@@ -1,0 +1,5 @@
+course_code,course_name,department,num_students,day,start_time,end_time
+CS101,Programming Fundamentals,Computer Science,35,Monday,8,10
+CS201,Object Oriented Programming,Computer Science,28,Monday,10,12
+MA101,Calculus I,Mathematics,32,Tuesday,8,10
+PH101,Physics I,Physics,18,Tuesday,10,12

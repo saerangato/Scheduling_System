@@ -21,13 +21,17 @@ int full_time_professor::get_assigned_courses_count() {
 }
 
 bool full_time_professor::meets_minimum_courses() {
-    if (type == 1 || assigned_courses_count > minimum_classes )
-        return true;
-    else return false;
+    return assigned_courses_count >= minimum_classes; // has 2 or more?
 }
 
 bool full_time_professor::exceeds_maximum_courses() {
-    if (type == -1 || assigned_courses_count < maximum_classes)
-        return true;
-    else return false;
+    return false; // full_time no tiene límite máximo
+}
+
+void full_time_professor::increment_courses() { 
+    assigned_courses_count++; 
+}
+
+void full_time_professor::decrement_courses() {
+    // not used
 }

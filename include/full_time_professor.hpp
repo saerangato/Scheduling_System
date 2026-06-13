@@ -13,8 +13,10 @@ public:
     virtual ~full_time_professor();
 
     int get_assigned_courses_count();
-    bool virtual meets_minimum_courses();
-    bool virtual exceeds_maximum_courses();
+    bool virtual meets_minimum_courses() override;
+    bool virtual exceeds_maximum_courses() override;
+    void increment_courses() override;
+    void decrement_courses() override;
 };
 
 #endif

@@ -15,6 +15,7 @@ public:
     std::optional<instructor*> assigned_instructor;
     std::optional<space*> assigned_space;
 
+    course() = default;
     course(std::string courseCode, std::string courseName, std::string dep, int n_students, schedule sched);
     
     ~course();

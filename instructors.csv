@@ -1,0 +1,5 @@
+type,name,payroll_number,department
+full_time,Ana Garcia,P1001,Computer Science
+full_time,Carlos Mendoza,P1002,Mathematics
+occasional,Juan Perez,L2001,Computer Science
+occasional,Mariana Lopez,L2002,Physics

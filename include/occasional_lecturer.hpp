@@ -10,11 +10,14 @@ private:
 
 public:
     occasional_lecturer(std::string n, std::string pnum, std::string dep);
-   virtual ~occasional_lecturer();
+    virtual ~occasional_lecturer();
 
     int get_assigned_courses_count();
-    bool virtual meets_minimum_courses();
+    bool meets_minimum_courses() override;
     bool virtual exceeds_maximum_courses();
+    void increment_courses() override;
+    void decrement_courses() override;
+
 };
 
 #endif

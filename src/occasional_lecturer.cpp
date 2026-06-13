@@ -21,13 +21,17 @@ int occasional_lecturer::get_assigned_courses_count() {
 }
 
 bool occasional_lecturer::meets_minimum_courses() {
-    if (type == 1 || assigned_courses_count > minimum_classes )
-        return true;
-    else return false;
+    return true; // occasional no tiene mínimo
 }
 
 bool occasional_lecturer::exceeds_maximum_courses() {
-    if (type == -1 || assigned_courses_count < maximum_classes)
-        return true;
-    else return false;
+    return assigned_courses_count >= maximum_classes; // has reached 3?
+}
+
+void occasional_lecturer::increment_courses() {
+    assigned_courses_count++;
+}
+
+void occasional_lecturer::decrement_courses() {
+    assigned_courses_count--;
 }
