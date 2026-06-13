@@ -31,8 +31,9 @@ public:
     virtual bool operator<(const instructor& other);
     virtual bool operator>(const instructor& other);
 
-    bool virtual meets_minimum_courses();
-    bool virtual exceeds_maximum_courses();
+    // pure virtual functions
+    virtual bool meets_minimum_courses() = 0;
+    virtual bool exceeds_maximum_courses() = 0;
 };
 
 #endif
