@@ -1,6 +1,6 @@
 #include<iostream>
 #include<string>
-#include"schedule.hpp"
+#include"../include/schedule.hpp"
 
 schedule::schedule() {
     day_of_week = "unassigned";

@@ -6,9 +6,10 @@ class space;
 
 class schedule_engine {
 private:
-    instructor* instructors_array;
-    course* courses_array;
-    space* spaces_array;
+    instructor** instructors_array;
+    space** spaces_array;
+    course* courses_array; // Este puede quedarse con un solo *, porque course no hereda de nadie
+
     
     int num_instructors;
     int num_courses;

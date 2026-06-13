@@ -8,7 +8,7 @@ protected:
     std::string name;
     std::string payroll_numbers;
     std::string department;
-    int minimum_clases, type, maximum_clases;
+    int minimum_classes, type, maximum_classes;
 
 public:
     // constructors and destructors

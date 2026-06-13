@@ -5,26 +5,25 @@
 #include<optional>
 #include "space.hpp"
 #include "instructor.hpp"
+#include "schedule.hpp"
 
 class course {
 public: 
     std::string course_name, course_code, department;
     int num_students;
-    std::string course_day;
-    int start_hour;
-    int end_hour;
+    schedule course_schedule; // replacement of primitive variables for the object schedule
     std::optional<instructor*> assigned_instructor;
     std::optional<space*> assigned_space;
 
-    course(std::string courseCode, std::string courseName, std::string dep, int n_students, std::string day, int start, int end);
+    course(std::string courseCode, std::string courseName, std::string dep, int n_students, schedule sched);
     
     ~course();
 
-    void set_instructor(instructor* inst);
-    instructor* get_instructor();
-    void set_space(space* spac);
-    space* get_space();
-    void print_details();
+    void course::set_instructor(instructor* inst);
+    instructor* course::get_instructor();
+    void course::set_space(space* spac);
+    space* course::get_space();
+    void course::print_details();
 
     // Getters & setters
     int get_enrollment();
