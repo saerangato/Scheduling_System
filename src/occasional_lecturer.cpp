@@ -21,13 +21,13 @@ int occasional_lecturer::get_assigned_courses_count() {
 }
 
 bool occasional_lecturer::meets_minimum_courses() {
-    if (type = 1 || assigned_courses_count > minimum_clases )
+    if (type == 1 || assigned_courses_count > minimum_clases )
         return true;
     else return false;
 }
 
 bool occasional_lecturer::exceeds_maximum_courses() {
-    if (type = -1 || assigned_courses_count < maximum_clases)
+    if (type == -1 || assigned_courses_count < maximum_clases)
         return true;
     else return false;
 }

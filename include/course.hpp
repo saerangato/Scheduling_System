@@ -20,11 +20,11 @@ public:
     
     ~course();
 
-    void course::set_instructor(instructor* inst);
-    instructor* course::get_instructor();
-    void course::set_space(space* spac);
-    space* course::get_space();
-    void course::print_details();
+    void set_instructor(instructor* inst);
+    instructor* get_instructor();
+    void set_space(space* spac);
+    space* get_space();
+    void print_details();
 
     // Getters & setters
     int get_enrollment();
