@@ -129,7 +129,7 @@ void schedule_engine::load_instructors(const std::string& filename) {
     }
 
     file.close();
-    std::cout << "[load_instructors] Instructores cargados: " << num_instructors << "\n";
+    std::cout << "[Loading...] Instructors loaded: " << num_instructors << "\n";
 }
 
 // ══════════════════════════════════════════════════════════
@@ -172,7 +172,7 @@ void schedule_engine::load_spaces(const std::string& filename) {
         std::string* tokens = split_csv(line, token_count);
 
         if (token_count < 4) {
-            std::cerr << "[load_spaces] Línea malformada, se omite: " << line << "\n";
+            std::cerr << "[Loading] Línea malformada, se omite: " << line << "\n";
             delete[] tokens;
             continue;
         }
@@ -193,12 +193,12 @@ void schedule_engine::load_spaces(const std::string& filename) {
             std::string* eq_ptr = equipment.empty() ? nullptr : new std::string(equipment);
             spaces_array[num_spaces++] = new laboratory(building, room, capacity, eq_ptr);
         } else {
-            std::cerr << "[load_spaces] Tipo desconocido ignorado: " << type << "\n";
+            std::cerr << "[Loading] Tipo desconocido ignorado: " << type << "\n";
         }
     }
 
     file.close();
-    std::cout << "[load_spaces] Espacios cargados: " << num_spaces << "\n";
+    std::cout << "[Loading] Spaces loaded: " << num_spaces << "\n";
 }
 
 // ══════════════════════════════════════════════════════════
@@ -259,7 +259,7 @@ void schedule_engine::load_courses(const std::string& filename) {
     }
 
     file.close();
-    std::cout << "[load_courses] Cursos cargados: " << num_courses << "\n";
+    std::cout << "[Loading] Courses loaded: " << num_courses << "\n";
 }
 
 // ══════════════════════════════════════════════════════════
