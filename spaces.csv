@@ -1,5 +1,8 @@
 type,building,room,capacity,equipment
 classroom,A,101,40,
-classroom,B,202,35,
-laboratory,Engineering,110,25,Computers
+classroom,A,203,40,
+classroom,B,205,35,
+classroom,C,302,10,
 laboratory,Science,210,20,Chemistry Equipment
+laboratory,Science,221,20,Chemistry Equipment
+laboratory,Engineering,110,25,Computers

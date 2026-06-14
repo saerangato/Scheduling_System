@@ -8,7 +8,7 @@
 #include "../include/space.hpp"
 
 // ══════════════════════════════════════════════════════════
-// HELPERS para el CLI
+// HELPERS for the CLI
 // ══════════════════════════════════════════════════════════
 
 void print_separator() {
@@ -31,26 +31,26 @@ void print_menu() {
 }
 
 // ══════════════════════════════════════════════════════════
-// Verifica traslape de horario entre dos cursos
+// Check for schedule overlap between two courses
 // ══════════════════════════════════════════════════════════
 bool schedules_overlap(course& a, course& b) {
     if (a.get_course_day() != b.get_course_day()) return false;
     // Traslape si uno empieza antes de que el otro termine
     return a.get_start_hour() < b.get_end_hour() &&
-           b.get_start_hour() < a.get_end_hour();
+            b.get_start_hour() < a.get_end_hour();
 }
 
 // ══════════════════════════════════════════════════════════
-// Asignar instructor a curso con todas las reglas de negocio
+// Assign instructor to a course following the guidelines
 // ══════════════════════════════════════════════════════════
 void assign_instructor_to_course(schedule_engine& engine,
-                                  instructor** instructors, int num_instructors,
-                                  course* courses, int num_courses) {
-    // Mostrar cursos disponibles
+                                instructor** instructors, int num_instructors,
+                                course* courses, int num_courses) {
+    // Display the courses available
     std::cout << "\n--- Courses ---\n";
     for (int i = 0; i < num_courses; i++) {
         std::cout << i << ". " << courses[i].course_code
-                  << " - " << courses[i].course_name;
+                << " - " << courses[i].course_name;
         if (courses[i].get_instructor() != nullptr) {
             std::cout << " [Instructor: " << courses[i].get_instructor()->get_name() << "]";
         }
@@ -65,11 +65,11 @@ void assign_instructor_to_course(schedule_engine& engine,
         return;
     }
 
-    // Mostrar instructores disponibles
+    // Display instructors available
     std::cout << "\n--- Instructors ---\n";
     for (int i = 0; i < num_instructors; i++) {
         std::cout << i << ". " << instructors[i]->get_name()
-                  << " (" << instructors[i]->get_department() << ")\n";
+                << " (" << instructors[i]->get_department() << ")\n";
     }
 
     int inst_idx;
@@ -83,88 +83,90 @@ void assign_instructor_to_course(schedule_engine& engine,
     instructor* new_inst = instructors[inst_idx];
     course& target = courses[course_idx];
 
-    // ── Regla: no exceder máximo de clases ──
+    // ── RULE: Do not exceed the course limit ──
     if (new_inst->exceeds_maximum_courses()) {
         std::cout << "[BLOCKED] " << new_inst->get_name()
-                  << " has reached their maximum course limit.\n";
+                << " has reached their maximum course limit.\n";
         return;
     }
 
-    // ── Regla: no double-booking de instructor ──
+    // ── RULE: No double booking of an instructor ──
     for (int i = 0; i < num_courses; i++) {
         if (i == course_idx) continue;
         if (courses[i].get_instructor() == new_inst &&
             schedules_overlap(courses[i], target)) {
             std::cout << "[BLOCKED] " << new_inst->get_name()
-                      << " is already assigned to "
-                      << courses[i].course_code
-                      << " at an overlapping time.\n";
+                    << " is already assigned to "
+                    << courses[i].course_code
+                    << " at an overlapping time.\n";
             return;
         }
     }
 
-    // ── Regla: prioridad full_time sobre occasional ──
+    // ── RULE: fulltime professors have priority over occasional lecturers ──
     instructor* current_inst = target.get_instructor();
 
     if (current_inst != nullptr) {
         bool new_is_fulltime = (dynamic_cast<full_time_professor*>(new_inst) != nullptr);
         bool cur_is_fulltime = (dynamic_cast<full_time_professor*>(current_inst) != nullptr);
 
-        // Si el actual es full_time y el nuevo es occasional → bloqueado
+        // If the current one is full-time and the new one is occasional => blocked
         if (cur_is_fulltime && !new_is_fulltime) {
             std::cout << "[BLOCKED] A full-time professor is already assigned. "
-                      << "Occasional lecturers cannot displace them.\n";
+                    << "Occasional lecturers cannot displace them.\n";
             return;
         }
 
-        // Si ambos son full_time → comparar por departamento del curso
+        // If both are full-time professors => compare the department of the course
         if (cur_is_fulltime && new_is_fulltime) {
             bool new_same_dept = (new_inst->get_department() == target.department);
             bool cur_same_dept = (current_inst->get_department() == target.department);
 
             if (cur_same_dept && !new_same_dept) {
                 std::cout << "[BLOCKED] Current professor is from the same department "
-                          << "and has priority.\n";
+                        << "and has priority.\n";
                 return;
             }
             if (!cur_same_dept && new_same_dept) {
-                // nuevo tiene prioridad, desplazar al actual
+                // new one has priority, displace the current one
                 std::cout << "[INFO] " << new_inst->get_name()
-                          << " from same department displaces "
-                          << current_inst->get_name() << ".\n";
-                // decrementar al desplazado si es occasional
+                        << " from same department displaces "
+                        << current_inst->get_name() << ".\n";
+                /* Decrement the number of courses if they are an occasional lecturer or
+                if a full-time professor displace's another full-time from a different department*/
                 occasional_lecturer* occ = dynamic_cast<occasional_lecturer*>(current_inst);
+                full_time_professor* ftp = dynamic_cast<full_time_professor*>(current_inst);
                 if (occ) occ->decrement_courses();
+                if (ftp) ftp->decrement_courses();
             }
-            // Si ambos son del mismo depto o ambos de diferente → se permite
+        
         }
 
-        // Si el actual es occasional y el nuevo es full_time → desplazar
+        // If the current one is occasional and the new one is full_time => shift
         if (!cur_is_fulltime && new_is_fulltime) {
             std::cout << "[INFO] Full-time professor displaces occasional lecturer "
-                      << current_inst->get_name() << ".\n";
+                    << current_inst->get_name() << ".\n";
             occasional_lecturer* occ = dynamic_cast<occasional_lecturer*>(current_inst);
             if (occ) occ->decrement_courses();
         }
     }
 
-    // ── Asignar ──
+    // ── Assign ──
     target.set_instructor(new_inst);
     new_inst->increment_courses();
     std::cout << "[OK] " << new_inst->get_name()
-              << " assigned to " << target.course_code << ".\n";
+            << " assigned to " << target.course_code << ".\n";
 }
 
 // ══════════════════════════════════════════════════════════
-// Asignar espacio a curso con todas las reglas de negocio
+// Allocate space to course following all the guidelines
 // ══════════════════════════════════════════════════════════
-void assign_room_to_course(course* courses, int num_courses,
-                            space** spaces, int num_spaces) {
-    // Mostrar cursos
+void assign_room_to_course(course* courses, int num_courses, space** spaces, int num_spaces) {
+    // Display courses
     std::cout << "\n--- Courses ---\n";
     for (int i = 0; i < num_courses; i++) {
         std::cout << i << ". " << courses[i].course_code
-                  << " - " << courses[i].course_name;
+                << " - " << courses[i].course_name;
         if (courses[i].get_assigned_space() != nullptr) {
             std::cout << " [Room assigned]";
         }
@@ -179,12 +181,12 @@ void assign_room_to_course(course* courses, int num_courses,
         return;
     }
 
-    // Mostrar espacios
+    // Display spaces
     std::cout << "\n--- Spaces ---\n";
     for (int i = 0; i < num_spaces; i++) {
         std::cout << i << ". " << spaces[i]->get_building_name()
-                  << " Room " << spaces[i]->get_room_number()
-                  << " (Capacity: " << spaces[i]->get_max_seating_capacity() << ")\n";
+                << " Room " << spaces[i]->get_room_number()
+                << " (Capacity: " << spaces[i]->get_max_seating_capacity() << ")\n";
     }
 
     int space_idx;
@@ -198,35 +200,35 @@ void assign_room_to_course(course* courses, int num_courses,
     course& target = courses[course_idx];
     space* new_space = spaces[space_idx];
 
-    // ── Regla: capacidad ──
+    // ── RULE: room capacity ──
     if (target.get_enrollment() > new_space->get_max_seating_capacity()) {
         std::cout << "[BLOCKED] Room capacity (" << new_space->get_max_seating_capacity()
-                  << ") is less than course enrollment (" << target.get_enrollment() << ").\n";
+                << ") is less than course enrollment (" << target.get_enrollment() << ").\n";
         return;
     }
 
-    // ── Regla: no double-booking de espacio ──
+    // ── RULE: no double-booking of spaces ──
     for (int i = 0; i < num_courses; i++) {
         if (i == course_idx) continue;
         if (courses[i].get_assigned_space() == new_space &&
             schedules_overlap(courses[i], target)) {
             std::cout << "[BLOCKED] Room " << new_space->get_building_name()
-                      << " " << new_space->get_room_number()
-                      << " is already booked for " << courses[i].course_code
-                      << " at an overlapping time.\n";
+                    << " " << new_space->get_room_number()
+                    << " is already booked for " << courses[i].course_code
+                    << " at an overlapping time.\n";
             return;
         }
     }
 
-    // ── Asignar ──
+    // ── Assign space ──
     target.assign_space(new_space);
     std::cout << "[OK] Room " << new_space->get_building_name()
-              << " " << new_space->get_room_number()
-              << " assigned to " << target.course_code << ".\n";
+            << " " << new_space->get_room_number()
+            << " assigned to " << target.course_code << ".\n";
 }
 
 // ══════════════════════════════════════════════════════════
-// Regla de salida: todos los full_time deben tener mínimo 2
+// Exit rule: all full-time employees must have a minimum of 2 courses
 // ══════════════════════════════════════════════════════════
 bool can_exit(instructor** instructors, int num_instructors) {
     bool all_met = true;
@@ -234,8 +236,8 @@ bool can_exit(instructor** instructors, int num_instructors) {
         full_time_professor* ftp = dynamic_cast<full_time_professor*>(instructors[i]);
         if (ftp != nullptr && !ftp->meets_minimum_courses()) {
             std::cout << "[BLOCKED] " << ftp->get_name()
-                      << " has only " << ftp->get_assigned_courses_count()
-                      << " course(s) assigned (minimum: 2).\n";
+                    << " has only " << ftp->get_assigned_courses_count()
+                    << " course(s) assigned (minimum: 2).\n";
             all_met = false;
         }
     }
@@ -248,8 +250,8 @@ bool can_exit(instructor** instructors, int num_instructors) {
 int main() {
     schedule_engine engine;
 
-    // Punteros locales para operar en el main
-    // El engine es dueño de la memoria; aquí solo los usamos
+// Local pointers for operations in the main function
+// The engine owns the memory; we only use them here
     instructor** instructors = nullptr;
     space**      spaces      = nullptr;
     course*      courses     = nullptr;
@@ -264,18 +266,13 @@ int main() {
 
         switch (option) {
 
-        // ── 1. Cargar datos ──
+        // ── 1. Load data from csv files ──
         case 1: {
             try {
                 engine.load_instructors("instructors.csv");
                 engine.load_spaces("spaces.csv");
                 engine.load_courses("courses.csv");
 
-                // Exponer los arreglos del engine al main
-                // Agrega getters en schedule_engine.h:
-                //   instructor** get_instructors(); int get_num_instructors();
-                //   space**      get_spaces();      int get_num_spaces();
-                //   course*      get_courses();     int get_num_courses();
                 instructors     = engine.get_instructors();
                 num_instructors = engine.get_num_instructors();
                 spaces          = engine.get_spaces();
@@ -291,51 +288,51 @@ int main() {
             break;
         }
 
-        // ── 2. Asignar instructor ──
+        // ── 2. Assign instructor ──
         case 2: {
             if (!data_loaded) { std::cout << "[ERROR] Load data first (option 1).\n"; break; }
             assign_instructor_to_course(engine, instructors, num_instructors, courses, num_courses);
             break;
         }
 
-        // ── 3. Asignar sala ──
+        // ── 3. Assign space ──
         case 3: {
             if (!data_loaded) { std::cout << "[ERROR] Load data first (option 1).\n"; break; }
             assign_room_to_course(courses, num_courses, spaces, num_spaces);
             break;
         }
 
-        // ── 4. Listar cursos ──
+        // ── 4. Course's list ──
         case 4: {
             if (!data_loaded) { std::cout << "[ERROR] Load data first (option 1).\n"; break; }
             print_separator();
             for (int i = 0; i < num_courses; i++) {
                 std::cout << "Course: " << courses[i].course_code
-                          << " | " << courses[i].course_name
-                          << " | Students: " << courses[i].get_enrollment()
-                          << " | Day: " << courses[i].get_course_day()
-                          << " " << courses[i].get_start_hour()
-                          << "-" << courses[i].get_end_hour();
+                        << " | " << courses[i].course_name
+                        << " | Students: " << courses[i].get_enrollment()
+                        << " | Day: " << courses[i].get_course_day()
+                        << " " << courses[i].get_start_hour()
+                        << "-" << courses[i].get_end_hour();
                 if (courses[i].get_instructor())
                     std::cout << " | Instructor: " << courses[i].get_instructor()->get_name();
                 if (courses[i].get_assigned_space())
                     std::cout << " | Room: " << courses[i].get_assigned_space()->get_building_name()
-                              << " " << courses[i].get_assigned_space()->get_room_number();
+                            << " " << courses[i].get_assigned_space()->get_room_number();
                 std::cout << "\n";
             }
             break;
         }
 
-        // ── 5. Listar instructores ──
+        // ── 5. Instructor's list ──
         case 5: {
             if (!data_loaded) { std::cout << "[ERROR] Load data first (option 1).\n"; break; }
             print_separator();
             for (int i = 0; i < num_instructors; i++) {
                 full_time_professor* ftp = dynamic_cast<full_time_professor*>(instructors[i]);
                 std::cout << instructors[i]->get_name()
-                          << " | " << instructors[i]->get_department()
-                          << " | " << (ftp ? "Full-time" : "Occasional")
-                          << " | Courses: ";
+                        << " | " << instructors[i]->get_department()
+                        << " | " << (ftp ? "Full-time" : "Occasional")
+                        << " | Courses: ";
                 if (ftp) std::cout << ftp->get_assigned_courses_count();
                 else {
                     occasional_lecturer* occ = dynamic_cast<occasional_lecturer*>(instructors[i]);
@@ -346,7 +343,7 @@ int main() {
             break;
         }
 
-        // ── 6. Listar espacios ──
+        // ── 6. Space's list ──
         case 6: {
             if (!data_loaded) { std::cout << "[ERROR] Load data first (option 1).\n"; break; }
             print_separator();
@@ -356,10 +353,10 @@ int main() {
             break;
         }
 
-        // ── 7. Salir ──
+        // ── 7. Exit ──
         case 7: {
             if (!data_loaded || can_exit(instructors, num_instructors)) {
-                std::cout << "Goodbye.\n";
+                std::cout << "Your scheduling has been completed successfully. Goodbye.\n";
                 return 0;
             }
             std::cout << "[BLOCKED] Cannot exit: not all obligations are met.\n";

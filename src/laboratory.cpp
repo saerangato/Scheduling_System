@@ -14,10 +14,10 @@ laboratory::~laboratory() {
 
 void laboratory::print_details() const {
     std::cout << "Laboratory " << building_name << " | Lab number: " << room_number
-              << " | Capacity " << max_seating_capacity
-              << " | Equipment ";
-              
-    // Validación de seguridad para el puntero dinámico
+            << " | Capacity " << max_seating_capacity
+            << " | Equipment ";
+            
+    // Security validation for the dynamic pointer
     if (specialized_equipment != nullptr) {
         std::cout << *specialized_equipment << std::endl;
     } else {

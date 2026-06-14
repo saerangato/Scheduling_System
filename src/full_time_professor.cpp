@@ -25,7 +25,7 @@ bool full_time_professor::meets_minimum_courses() {
 }
 
 bool full_time_professor::exceeds_maximum_courses() {
-    return false; // full_time no tiene límite máximo
+    return false; // full-time professor has no maximum limit
 }
 
 void full_time_professor::increment_courses() { 
@@ -33,5 +33,5 @@ void full_time_professor::increment_courses() {
 }
 
 void full_time_professor::decrement_courses() {
-    // not used
+    assigned_courses_count--;
 }

@@ -14,16 +14,15 @@
 
 using namespace std;
 
-// Cargar datos
 // ══════════════════════════════════════════════════════════
-// HELPER: split CSV sin usar vector
-// Retorna arreglo dinámico; escribe cantidad en out_count
-// IMPORTANTE: el caller debe hacer delete[] al terminar
+// Load data
 // ══════════════════════════════════════════════════════════
+// Split CSV without using a vector
+// Returns a dynamic array; writes the quantity to out_count
 static std::string* split_csv(const std::string& line, int& out_count) {
     out_count = 1;
     for (int i = 0; i < (int)line.size(); i++) {
-        if (line[i] == ',') out_count++;
+        if (line[i] == ',') out_count++; 
     }
 
     std::string* tokens = new std::string[out_count];
@@ -38,21 +37,21 @@ static std::string* split_csv(const std::string& line, int& out_count) {
             current += line[i];
         }
     }
-    tokens[index] = current; // último token después de la última coma
+    tokens[index] = current; // last token after the last comma
 
     return tokens;
 }
 
 // ══════════════════════════════════════════════════════════
-// Constructor y Destructor
+// Constructor & Destructor
 // ══════════════════════════════════════════════════════════
 schedule_engine::schedule_engine()
     : instructors_array(nullptr),
-      spaces_array(nullptr),
-      courses_array(nullptr),
-      num_instructors(0),
-      num_spaces(0),
-      num_courses(0) {}
+        spaces_array(nullptr),
+        courses_array(nullptr),
+        num_instructors(0),
+        num_spaces(0),
+        num_courses(0) {}
 
 schedule_engine::~schedule_engine() {
     for (int i = 0; i < num_instructors; i++) {
@@ -69,12 +68,8 @@ schedule_engine::~schedule_engine() {
 }
 
 // ══════════════════════════════════════════════════════════
-// load_instructors
-//
-// Formato esperado del CSV:
-//   type,name,payroll,department
-//   full_time,Juan Pérez,L01234567,Engineering
-//   occasional,Ana López,L09876543,Science
+// LOAD INSTRUCTORS
+// Expected CSV format: type,name,payroll,department
 // ══════════════════════════════════════════════════════════
 void schedule_engine::load_instructors(const std::string& filename) {
     std::ifstream file(filename);
@@ -83,20 +78,17 @@ void schedule_engine::load_instructors(const std::string& filename) {
     }
 
     std::string line;
-    std::getline(file, line); // saltar encabezado
+    std::getline(file, line); 
 
-    // Paso 1: contar filas válidas
     int count = 0;
     while (std::getline(file, line)) {
         if (!line.empty()) count++;
     }
 
-    // Paso 2: reiniciar y leer de nuevo
     file.clear();
     file.seekg(0);
-    std::getline(file, line); // saltar encabezado de nuevo
+    std::getline(file, line); 
 
-    // Paso 3: liberar memoria previa si existía
     if (instructors_array != nullptr) {
         for (int i = 0; i < num_instructors; i++) {
             delete instructors_array[i];
@@ -108,7 +100,6 @@ void schedule_engine::load_instructors(const std::string& filename) {
     instructors_array = new instructor*[count];
     num_instructors = 0;
 
-    // Paso 4: leer y construir cada instructor
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 
@@ -142,12 +133,8 @@ void schedule_engine::load_instructors(const std::string& filename) {
 }
 
 // ══════════════════════════════════════════════════════════
-// load_spaces
-//
-// Formato esperado del CSV:
-//   type,building,room,capacity,equipment
-//   classroom,A,101,40,
-//   laboratory,Engineering,110,25,Computers
+// LOAD SPACES
+// Expected CSV format: type,building,room,capacity,equipment
 // ══════════════════════════════════════════════════════════
 void schedule_engine::load_spaces(const std::string& filename) {
     std::ifstream file(filename);
@@ -156,20 +143,17 @@ void schedule_engine::load_spaces(const std::string& filename) {
     }
 
     std::string line;
-    std::getline(file, line); // saltar encabezado
+    std::getline(file, line);
 
-    // Paso 1: contar filas válidas
     int count = 0;
     while (std::getline(file, line)) {
         if (!line.empty()) count++;
     }
 
-    // Paso 2: reiniciar
     file.clear();
     file.seekg(0);
-    std::getline(file, line); // saltar encabezado de nuevo
+    std::getline(file, line); 
 
-    // Paso 3: liberar memoria previa
     if (spaces_array != nullptr) {
         for (int i = 0; i < num_spaces; i++) {
             delete spaces_array[i];
@@ -181,7 +165,6 @@ void schedule_engine::load_spaces(const std::string& filename) {
     spaces_array = new space*[count];
     num_spaces = 0;
 
-    // Paso 4: leer y construir cada espacio
     while (std::getline(file, line)) {
         if (line.empty()) continue;
 
@@ -198,7 +181,7 @@ void schedule_engine::load_spaces(const std::string& filename) {
         std::string building  = tokens[1];
         int room              = std::stoi(tokens[2]);
         int capacity          = std::stoi(tokens[3]);
-        // equipment es opcional (columna 5), puede estar vacía
+
         std::string equipment = (token_count >= 5) ? tokens[4] : "";
 
         delete[] tokens;
@@ -219,12 +202,9 @@ void schedule_engine::load_spaces(const std::string& filename) {
 }
 
 // ══════════════════════════════════════════════════════════
-// load_courses
-//
-// Formato esperado del CSV:
-//   code,name,department,students,day,start_hour,end_hour
-//   CS101,Intro to CS,Engineering,30,Monday,8,10
-//   MATH201,Calculus,Science,25,Tuesday,10,12
+// LOAD COURSES
+// Expected CSV format: 
+// code,name,department,students,day,start_hour,end_hour
 // ══════════════════════════════════════════════════════════
 void schedule_engine::load_courses(const std::string& filename) {
     std::ifstream file(filename);
@@ -233,29 +213,22 @@ void schedule_engine::load_courses(const std::string& filename) {
     }
 
     std::string line;
-    std::getline(file, line); // saltar encabezado
+    std::getline(file, line); 
 
-    // Paso 1: contar filas válidas
     int count = 0;
     while (std::getline(file, line)) {
         if (!line.empty()) count++;
     }
 
-    // Paso 2: reiniciar
     file.clear();
     file.seekg(0);
-    std::getline(file, line); // saltar encabezado de nuevo
+    std::getline(file, line);
 
-    // Paso 3: liberar memoria previa
     if (courses_array != nullptr) {
         delete[] courses_array;
         courses_array = nullptr;
     }
 
-    // Paso 4: construir el arreglo
-    // NOTA: course necesita un constructor default para poder
-    // hacer new course[count]. Agrega en course.hpp:
-    //   course() = default;
     courses_array = new course[count];
     num_courses = 0;
 
@@ -289,16 +262,18 @@ void schedule_engine::load_courses(const std::string& filename) {
     std::cout << "[load_courses] Cursos cargados: " << num_courses << "\n";
 }
 
-// 3. Las funciones 
+// ══════════════════════════════════════════════════════════
+// Functions
+// ══════════════════════════════════════════════════════════
 bool schedule_engine::room_assignment(course* cour, space* spac) {
     
-    // 1. Validar capacidad
+    // Validate capacity
     if (cour->get_enrollment() > spac->get_max_seating_capacity()) {
         cout << "Error: Hay mas alumnos que sillas." << endl;
         return false; 
     }
 
-    // 2. Revisar empalmes
+    // Check for conflicts
     for (int i = 0; i < num_courses; i++) {
         course* otro = &courses_array[i];
         
@@ -322,7 +297,6 @@ bool schedule_engine::room_assignment(course* cour, space* spac) {
     return true;
 }
 
-// Demás funciones
 
 bool schedule_engine::lecturer_limit_classes() {
     for (int i = 0; i < num_instructors; i++) {

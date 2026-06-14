@@ -3,7 +3,6 @@
 #include <string>
 #include "../include/course.hpp"
 
-// Ajustamos el constructor para recibir los nuevos parámetros
 course::course(std::string courseCode, std::string courseName, std::string dep, int n_students, schedule sched) {
     course_code = courseCode;
     course_name = courseName;
