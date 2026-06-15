@@ -11,7 +11,7 @@ class laboratory : public space {
     public:
     laboratory(std::string b_name, int r_num, int capacity, std::string* eq);
 
-    virtual ~laboratory(); // agregar a UML
+    virtual ~laboratory(); 
 
     void print_details() const override;
 };
