@@ -6,10 +6,11 @@
 #include "../include/occasional_lecturer.hpp"
 #include "../include/classroom.hpp"
 #include "../include/laboratory.hpp"
+#include "../include/schedule.hpp"
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
-#include <fstream> 
+#include <fstream>
 #include <string>
 
 using namespace std;
@@ -17,8 +18,6 @@ using namespace std;
 // ══════════════════════════════════════════════════════════
 // Load data
 // ══════════════════════════════════════════════════════════
-// Split CSV without using a vector
-// Returns a dynamic array; writes the quantity to out_count
 static std::string* split_csv(const std::string& line, int& out_count) {
     out_count = 1;
     for (int i = 0; i < (int)line.size(); i++) {
@@ -37,7 +36,7 @@ static std::string* split_csv(const std::string& line, int& out_count) {
             current += line[i];
         }
     }
-    tokens[index] = current; // last token after the last comma
+    tokens[index] = current;
 
     return tokens;
 }
@@ -68,13 +67,22 @@ schedule_engine::~schedule_engine() {
 }
 
 // ══════════════════════════════════════════════════════════
+// HELPER: Check schedule overlap between two courses
+// ══════════════════════════════════════════════════════════
+bool schedule_engine::schedules_overlap(course& a, course& b) {
+    if (a.get_course_day() != b.get_course_day()) return false;
+    return a.get_start_hour() < b.get_end_hour() &&
+            b.get_start_hour() < a.get_end_hour();
+}
+
+// ══════════════════════════════════════════════════════════
 // LOAD INSTRUCTORS
 // Expected CSV format: type,name,payroll,department
 // ══════════════════════════════════════════════════════════
 void schedule_engine::load_instructors(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        throw std::runtime_error("No se pudo abrir el archivo: " + filename);
+        throw std::runtime_error("Could not open file: " + filename);
     }
 
     std::string line;
@@ -107,7 +115,7 @@ void schedule_engine::load_instructors(const std::string& filename) {
         std::string* tokens = split_csv(line, token_count);
 
         if (token_count < 4) {
-            std::cerr << "[load_instructors] Línea malformada, se omite: " << line << "\n";
+            std::cerr << "[Loading...] Malformed line, skipping: " << line << "\n";
             delete[] tokens;
             continue;
         }
@@ -124,7 +132,7 @@ void schedule_engine::load_instructors(const std::string& filename) {
         } else if (type == "occasional") {
             instructors_array[num_instructors++] = new occasional_lecturer(name, payroll, department);
         } else {
-            std::cerr << "[load_instructors] Tipo desconocido ignorado: " << type << "\n";
+            std::cerr << "[Loading...] Unknown type ignored: " << type << "\n";
         }
     }
 
@@ -139,7 +147,7 @@ void schedule_engine::load_instructors(const std::string& filename) {
 void schedule_engine::load_spaces(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        throw std::runtime_error("No se pudo abrir el archivo: " + filename);
+        throw std::runtime_error("Could not open file: " + filename);
     }
 
     std::string line;
@@ -172,7 +180,7 @@ void schedule_engine::load_spaces(const std::string& filename) {
         std::string* tokens = split_csv(line, token_count);
 
         if (token_count < 4) {
-            std::cerr << "[Loading] Línea malformada, se omite: " << line << "\n";
+            std::cerr << "[Loading...] Malformed line, skipping: " << line << "\n";
             delete[] tokens;
             continue;
         }
@@ -181,7 +189,6 @@ void schedule_engine::load_spaces(const std::string& filename) {
         std::string building  = tokens[1];
         int room              = std::stoi(tokens[2]);
         int capacity          = std::stoi(tokens[3]);
-
         std::string equipment = (token_count >= 5) ? tokens[4] : "";
 
         delete[] tokens;
@@ -189,16 +196,15 @@ void schedule_engine::load_spaces(const std::string& filename) {
         if (type == "classroom") {
             spaces_array[num_spaces++] = new classroom(building, room, capacity);
         } else if (type == "laboratory") {
-            // laboratory espera std::string* para el equipo
             std::string* eq_ptr = equipment.empty() ? nullptr : new std::string(equipment);
             spaces_array[num_spaces++] = new laboratory(building, room, capacity, eq_ptr);
         } else {
-            std::cerr << "[Loading] Tipo desconocido ignorado: " << type << "\n";
+            std::cerr << "[load_spaces] Unknown type ignored: " << type << "\n";
         }
     }
 
     file.close();
-    std::cout << "[Loading] Spaces loaded: " << num_spaces << "\n";
+    std::cout << "[Loading...] Spaces loaded: " << num_spaces << "\n";
 }
 
 // ══════════════════════════════════════════════════════════
@@ -209,11 +215,11 @@ void schedule_engine::load_spaces(const std::string& filename) {
 void schedule_engine::load_courses(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        throw std::runtime_error("No se pudo abrir el archivo: " + filename);
+        throw std::runtime_error("Could not open file: " + filename);
     }
 
     std::string line;
-    std::getline(file, line); 
+    std::getline(file, line); // skip header
 
     int count = 0;
     while (std::getline(file, line)) {
@@ -239,7 +245,7 @@ void schedule_engine::load_courses(const std::string& filename) {
         std::string* tokens = split_csv(line, token_count);
 
         if (token_count < 7) {
-            std::cerr << "[load_courses] Línea malformada, se omite: " << line << "\n";
+            std::cerr << "[Loading...] Malformed line, skipping: " << line << "\n";
             delete[] tokens;
             continue;
         }
@@ -259,70 +265,240 @@ void schedule_engine::load_courses(const std::string& filename) {
     }
 
     file.close();
-    std::cout << "[Loading] Courses loaded: " << num_courses << "\n";
+    std::cout << "[Loading...] Courses loaded: " << num_courses << "\n";
 }
 
 // ══════════════════════════════════════════════════════════
-// Functions
+// Assign instructor to a course
 // ══════════════════════════════════════════════════════════
-bool schedule_engine::room_assignment(course* cour, space* spac) {
-    
-    // Validate capacity
-    if (cour->get_enrollment() > spac->get_max_seating_capacity()) {
-        cout << "Error: Hay mas alumnos que sillas." << endl;
-        return false; 
+void schedule_engine::assign_instructor_to_course() {
+    std::cout << "\n--- Courses ---\n";
+    for (int i = 0; i < num_courses; i++) {
+        std::cout << i << ". " << courses_array[i].course_code
+                    << " - " << courses_array[i].course_name;
+        if (courses_array[i].get_instructor() != nullptr) {
+            std::cout << " [Instructor: " << courses_array[i].get_instructor()->get_name() << "]";
+        }
+        std::cout << "\n";
     }
 
-    // Check for conflicts
+    int course_idx;
+    std::cout << "Select course index: ";
+    std::cin >> course_idx;
+    if (course_idx < 0 || course_idx >= num_courses) {
+        std::cout << "[ERROR] Invalid course index.\n";
+        return;
+    }
+
+    std::cout << "\n--- Instructors ---\n";
+    for (int i = 0; i < num_instructors; i++) {
+        std::cout << i << ". " << instructors_array[i]->get_name()
+                    << " (" << instructors_array[i]->get_department() << ")\n";
+    }
+
+    int inst_idx;
+    std::cout << "Select instructor index: ";
+    std::cin >> inst_idx;
+    if (inst_idx < 0 || inst_idx >= num_instructors) {
+        std::cout << "[ERROR] Invalid instructor index.\n";
+        return;
+    }
+
+    instructor* new_inst = instructors_array[inst_idx];
+    course& target = courses_array[course_idx];
+
+    // ── RULE: Do not exceed the course limit ──
+    if (new_inst->exceeds_maximum_courses()) {
+        std::cout << "[BLOCKED] " << new_inst->get_name()
+                    << " has reached their maximum course limit.\n";
+        return;
+    }
+
+    // ── RULE: No double booking of an instructor ──
     for (int i = 0; i < num_courses; i++) {
-        course* otro = &courses_array[i];
-        
-        bool mismo_salon = (otro->get_assigned_space() == spac);
-        bool mismo_dia = (otro->get_course_day() == cour->get_course_day());
+        if (i == course_idx) continue;
+        if (courses_array[i].get_instructor() == new_inst &&
+            schedules_overlap(courses_array[i], target)) {
+            std::cout << "[BLOCKED] " << new_inst->get_name()
+                        << " is already assigned to "
+                        << courses_array[i].course_code
+                        << " at an overlapping time.\n";
+            return;
+        }
+    }
 
-        if (mismo_salon && mismo_dia) {
-            // Usando los nombres de funciones que salen en tu archivo
-            bool choca_inicio = (cour->get_start_hour() < otro->get_end_hour());
-            bool choca_fin = (cour->get_end_hour() > otro->get_start_hour());
+    // ── RULE: full_time professors have priority over occasional lecturers ──
+    instructor* current_inst = target.get_instructor();
 
-            if (choca_inicio && choca_fin) {
-                cout << "Error: Este salon ya esta ocupado." << endl;
-                return false; 
+    if (current_inst != nullptr) {
+        bool new_is_fulltime = (dynamic_cast<full_time_professor*>(new_inst) != nullptr);
+        bool cur_is_fulltime = (dynamic_cast<full_time_professor*>(current_inst) != nullptr);
+
+        // If the current one is full-time and the new one is occasional => blocked
+        if (cur_is_fulltime && !new_is_fulltime) {
+            std::cout << "[BLOCKED] A full-time professor is already assigned. "
+                        << "Occasional lecturers cannot displace them.\n";
+            return;
+        }
+
+        // If both are full-time => compare department
+        if (cur_is_fulltime && new_is_fulltime) {
+            bool new_same_dept = (new_inst->get_department() == target.department);
+            bool cur_same_dept = (current_inst->get_department() == target.department);
+
+            if (cur_same_dept && !new_same_dept) {
+                std::cout << "[BLOCKED] Current professor is from the same department "
+                            << "and has priority.\n";
+                return;
+            }
+            if (!cur_same_dept && new_same_dept) {
+                std::cout << "[INFO] " << new_inst->get_name()
+                            << " from same department displaces "
+                            << current_inst->get_name() << ".\n";
+                occasional_lecturer* occ = dynamic_cast<occasional_lecturer*>(current_inst);
+                full_time_professor* ftp = dynamic_cast<full_time_professor*>(current_inst);
+                if (occ) occ->decrement_courses();
+                if (ftp) ftp->decrement_courses();
+            }
+        }
+
+        // If the current one is occasional and the new one is full_time => displace
+        if (!cur_is_fulltime && new_is_fulltime) {
+            std::cout << "[INFO] Full-time professor displaces occasional lecturer "
+                        << current_inst->get_name() << ".\n";
+            occasional_lecturer* occ = dynamic_cast<occasional_lecturer*>(current_inst);
+            if (occ) occ->decrement_courses();
+        }
+    }
+
+    // ── Assign ──
+    target.set_instructor(new_inst);
+    new_inst->increment_courses();
+    std::cout << "[OK] " << new_inst->get_name()
+                << " assigned to " << target.course_code << ".\n";
+}
+
+// ══════════════════════════════════════════════════════════
+// ASSIGN ROOM TO COURSE
+// ══════════════════════════════════════════════════════════
+void schedule_engine::assign_room_to_course() {
+    std::cout << "\n--- Courses ---\n";
+    for (int i = 0; i < num_courses; i++) {
+        std::cout << i << ". " << courses_array[i].course_code
+                    << " - " << courses_array[i].course_name;
+        if (courses_array[i].get_assigned_space() != nullptr)
+            std::cout << " [Room assigned]";
+        std::cout << "\n";
+    }
+
+    int course_idx;
+    std::cout << "Select course index: ";
+    std::cin >> course_idx;
+    if (course_idx < 0 || course_idx >= num_courses) {
+        std::cout << "[ERROR] Invalid course index.\n";
+        return;
+    }
+
+    std::cout << "\n--- Spaces ---\n";
+    for (int i = 0; i < num_spaces; i++) {
+        std::cout << i << ". " << spaces_array[i]->get_building_name()
+                    << " Room " << spaces_array[i]->get_room_number()
+                    << " (Capacity: " << spaces_array[i]->get_max_seating_capacity() << ")\n";
+    }
+
+    int space_idx;
+    std::cout << "Select space index: ";
+    std::cin >> space_idx;
+    if (space_idx < 0 || space_idx >= num_spaces) {
+        std::cout << "[ERROR] Invalid space index.\n";
+        return;
+    }
+
+    course& target = courses_array[course_idx];
+    space* new_space = spaces_array[space_idx];
+
+    // ── RULE: room capacity ──
+    if (target.get_enrollment() > new_space->get_max_seating_capacity()) {
+        std::cout << "[BLOCKED] Room capacity (" << new_space->get_max_seating_capacity()
+                    << ") is less than course enrollment (" << target.get_enrollment() << ").\n";
+        return;
+    }
+
+    // ── RULE: no double-booking of spaces ──
+    for (int i = 0; i < num_courses; i++) {
+        if (i == course_idx) continue;
+        if (courses_array[i].get_assigned_space() == new_space &&
+            schedules_overlap(courses_array[i], target)) {
+            std::cout << "[BLOCKED] Room " << new_space->get_building_name()
+                        << " " << new_space->get_room_number()
+                        << " is already booked for " << courses_array[i].course_code
+                        << " at an overlapping time.\n";
+            return;
+        }
+    }
+
+    // ── Assign space ──
+    target.assign_space(new_space);
+    std::cout << "[OK] Room " << new_space->get_building_name()
+                << " " << new_space->get_room_number()
+                << " assigned to " << target.course_code << ".\n";
+}
+
+// ══════════════════════════════════════════════════════════
+// Assign spaces
+// ══════════════════════════════════════════════════════════
+bool schedule_engine::room_assignment(course* cour, space* spac) {
+    if (cour->get_enrollment() > spac->get_max_seating_capacity()) {
+        std::cout << "[BLOCKED] Room capacity exceeded.\n";
+        return false;
+    }
+
+    for (int i = 0; i < num_courses; i++) {
+        course* other = &courses_array[i];
+        bool same_room = (other->get_assigned_space() == spac);
+        bool same_day  = (other->get_course_day() == cour->get_course_day());
+
+        if (same_room && same_day) {
+            bool overlap_start = (cour->get_start_hour() < other->get_end_hour());
+            bool overlap_end   = (cour->get_end_hour()   > other->get_start_hour());
+            if (overlap_start && overlap_end) {
+                std::cout << "[BLOCKED] Room already occupied at that time.\n";
+                return false;
             }
         }
     }
 
     cour->assign_space(spac);
-    cout << "Exito: Salon asignado." << endl;
+    std::cout << "[OK] Room assigned.\n";
     return true;
 }
 
-
+// ══════════════════════════════════════════════════════════
+// Lecturer limit clases
+// ══════════════════════════════════════════════════════════
 bool schedule_engine::lecturer_limit_classes() {
     for (int i = 0; i < num_instructors; i++) {
-        // Le preguntamos directo al instructor si ya se pasó de su límite
         if (instructors_array[i]->exceeds_maximum_courses()) {
-            cout << "Error: Un profesor de catedra excede el maximo de 3 clases." << endl;
+            std::cout << "[ERROR] An occasional lecturer exceeds the maximum of 3 classes.\n";
             return false;
         }
     }
     return true;
 }
 
+// ══════════════════════════════════════════════════════════
+// Exit program
+// ══════════════════════════════════════════════════════════
 bool schedule_engine::exit_program() {
-    bool can_exit = true; 
-
+    bool result = true;
     for (int i = 0; i < num_instructors; i++) {
-        // Le preguntamos directo al instructor si NO cumple con su mínimo
         if (!instructors_array[i]->meets_minimum_courses()) {
-            cout << "Error al salir: Un profesor de planta tiene menos de 2 clases asignadas." << endl;
-            can_exit = false; 
+            std::cout << "[ERROR] A full-time professor has fewer than 2 classes assigned.\n";
+            result = false;
         }
     }
-
-    if (can_exit) {
-        cout << "Obligaciones del contrato cumplidas. Cerrando sistema" << endl;
+    if (result) {
+        std::cout << "All contractual obligations met. Closing system.\n";
     }
-    
-    return can_exit;
+    return result;
 }
